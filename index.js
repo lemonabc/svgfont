@@ -3,23 +3,27 @@ var fontCarrier = require('font-carrier');
 var filePlus = require('file-plus');
 var fs = require('fs');
 var path = require('path');
+
+var fontType = {
+	'eot':'embedded-opentype',
+	'woff':'woff',
+	'ttf':'truetype',
+	'svg':'svg'
+}
 class Svg {
-	/**
-	 * 将目录下的svg文件合并成字体
-	 * @param  {string} svgDir svg目录
-	 * @param  {string} outPut 输出的字体目录
-	 * @param  {string} name 输出的字体名称
-	 * @param  {string} startChar 启始字符默认位900;
-	 */
-	static svgToFont(svgDir,outPut,name,startChar){
-		var font = fontCarrier.create();
-		var files = filePlus.getAllFilesSync(svgDir);
-		startChar = startChar || '900';
-		var char = "&#xe";
+
+	constructor(svgDir,tname,startChar){
+		this.name = tname;
+		this.infos = [];
+		this.font = fontCarrier.create();
 		var self = this;
-		var infos = [];
+		var char = "&#xe";
+		startChar = startChar || '900';
+		var self = this;
+
+		var files = filePlus.getAllFilesSync(svgDir);
 		if(files.length == 0){
-			return
+			return null;
 		}
 		files.forEach(function(file) {
 			var tempJson = {};
@@ -27,42 +31,71 @@ class Svg {
 			var fileName = path.basename(file,'.svg');
 			tempJson.fileName = fileName;
 			tempJson.content = '\e'+startChar;
-			font.setSvg(tempChar,{
+			self.font.setSvg(tempChar,{
 				svg:fs.readFileSync(file).toString(),
 				glyphName:fileName
 			});
 			startChar = self.next(startChar);
-			infos.push(tempJson);
+			self.infos.push(tempJson);
 		})
-		//判断font目录是否存在
+
+	}
+
+	getInfos(){
+		return this.infos;
+	}
+	/**
+	 * 输出字体文件
+	 * @param  {[type]} outPut [description]
+	 * @param  {[type]} name   [description]
+	 * @return {[type]}        [description]
+	 */
+	outPut(outPut){
 		if(!fs.existsSync(outPut)){
 			//创建目录
-			filePlus.createFileSync(outPut);
+			filePlus.mkdirsSync(outPut,'0777');
 		}
-		var fontPath = path.join(outPut,name);
-		
-		font.output({
+		var fontPath = path.join(outPut,this.name);
+		this.font.output({
 		  path:fontPath
 		})
-		return infos;
-	};
-	static next(char){
+		return true;
+	}
+	/**
+	 * 获取下一个字符码
+	 * @param  {[type]}   char [description]
+	 * @return {Function}      [description]
+	 */
+	next(char){
 		var num = parseInt(char,'16');
 		num++;
 		return parseInt(num).toString(16);
-	};
-	static getClassHead(urlPath,name,version){
-		var fontFacr = "@font-face {\n"+
-							"font-family: '"+name+"';\n"+
-							"src:url('"+urlPath+name+".eot?v="+version+"');\n"+
-							"src:url('"+urlPath+name+".eot?v="+version+"') format('embedded-opentype'),\n"+
-								"url('"+urlPath+name+".woff?v="+version+"') format('woff'),\n"+
-								"url('"+urlPath+name+".ttf?v="+version+"') format('truetype'),\n"+
-								"url('"+urlPath+name+".svg?v="+version+"') format('svg');\n"+
-							"font-weight: normal;\n"+
-							"font-style: normal;\n"+
-						 "}\n"
-		return fontFacr;
+	}
+	/**
+	 * 获取@font-face
+	 * @param  {String} urlPath 字体路径
+	 * @param  {String} version 字体版本号
+	 * @param  {Bool} base64  是否输出字体的base64编码
+	 * @return {String}        @font-face属性
+	 */
+	getClassHead(urlPath,version,only64){
+		var fontFace = '@font-face {\n'+'font-family: "'+this.name+'";\n';
+		var last = '';
+		if(only64){
+			var object = this.font.output();
+			fontFace = fontFace + 'src:url(ddata:application/x-font-ttf;base64,'+object['ttf'].toString('base64')+'format(\''+fontType['ttf']+'\'));\n'
+		}else{
+			fontFace = fontFace + 'src:url("'+urlPath+this.name+'.eot?v='+version+'");\nsrc:';
+			for(var item in fontType){
+				fontFace = fontFace + last;
+				fontFace = fontFace + 'url("'+urlPath+this.name+'.'+item+'?v='+version+'") format("'+fontType[item]+'")';
+				last = ',\n';
+			}
+			fontFace = fontFace + ';\n';
+		}
+		fontFace = fontFace + "font-weight: normal;\n"+"font-style: normal;\n"+"}\n"
+
+		return fontFace;
 	}
 }
 

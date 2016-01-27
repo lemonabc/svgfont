@@ -2,15 +2,17 @@ var svg = require("../");
 var assert = require("assert");
 describe("svgToFont", function() {
     it("把目录内svg合并生成到指定目录", function() {
-        var res = svg.svgToFont('svg','./','icon');
+        var tempSvg = new svg('svg','font');
+        var res = tempSvg.getInfos();
         console.log(res);
-        assert.equal(true,res.length>0);
+        tempSvg.outPut('./');
     });
 });
 
 describe("getClassHead", function() {
     it("获取字体的style", function() {
-        var res = svg.getClassHead('icon','2008');
+        var tempSvg = new svg('svg','font');
+        var res = tempSvg.getClassHead('icon','2008',true);
         console.log(res);
         assert.equal(true,true);
     });
