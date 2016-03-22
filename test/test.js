@@ -12,7 +12,9 @@ describe("svgToFont", function() {
 describe("getClassHead", function() {
     it("获取字体的style", function() {
         var tempSvg = new svg('svg','font');
-        var res = tempSvg.getClassHead('icon','2008',true);
+
+        var res = tempSvg.getClassHead('icon',true);
+
         console.log(res);
         assert.equal(true,true);
     });

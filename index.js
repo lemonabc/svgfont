@@ -74,21 +74,23 @@ class Svg {
 	/**
 	 * 获取@font-face
 	 * @param  {String} urlPath 字体路径
-	 * @param  {String} version 字体版本号
 	 * @param  {Bool} base64  是否输出字体的base64编码
 	 * @return {String}        @font-face属性
 	 */
+
 	getClassHead(urlPath,version,only64){
+
 		var fontFace = '@font-face {\n'+'font-family: "'+this.name+'";\n';
 		var last = '';
 		if(only64){
 			var object = this.font.output();
-			fontFace = fontFace + 'src:url(ddata:application/x-font-ttf;base64,'+object['ttf'].toString('base64')+'format(\''+fontType['ttf']+'\'));\n'
+			fontFace = fontFace + 'src:url(\'data:application/x-font-ttf;base64,'+object['ttf'].toString('base64')+'\') format(\''+fontType['ttf']+'\');\n'
 		}else{
-			fontFace = fontFace + 'src:url("'+urlPath+this.name+'.eot?v='+version+'");\nsrc:';
+			fontFace = fontFace + 'src:url("'+urlPath+this.name+'.eot");\nsrc:';
 			for(var item in fontType){
 				fontFace = fontFace + last;
-				fontFace = fontFace + 'url("'+urlPath+this.name+'.'+item+'?v='+version+'") format("'+fontType[item]+'")';
+				fontFace = fontFace + 'url("'+urlPath+this.name+'.'+item+'") format("'+fontType[item]+'")';
+
 				last = ',\n';
 			}
 			fontFace = fontFace + ';\n';
