@@ -74,7 +74,7 @@ class Svg {
 			var hash = crypto.createHash('md5').update(fontBuffer.svg.toString("utf-8")).digest('hex');
 			this.name = hash.substring(0,6);
 			if(fs.existsSync(path.join(outPut,this.name+'.svg'))){
-				console.log('字体未改变');
+				// console.log('字体未改变');
 				return this.name
 			}
 		}
