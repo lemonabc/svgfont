@@ -1,11 +1,11 @@
 {
     "name": "svgfont",
-    "version": "1.0.0",
+    "version": "1.0.4",
     "description": "",
     "main": "index.js",
     "dependencies": {
         "font-carrier":"0.0.10",
-        "file-plus":">=0.0.4"
+        "file-plus": "~1.0.0"
     },
     "repository": {
         "type": "git",
