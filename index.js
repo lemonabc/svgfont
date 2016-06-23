@@ -56,11 +56,11 @@ class Svg {
 	}
 	/**
 	 * 输出字体文件
-	 * @param  {[type]} outPut [description]
-	 * @param  {[type]} name   [description]
+	 * @param  {[type]} outPut 输出路径
+	 * @param  {boolean} clean   是否清空路境内文件
 	 * @return {String} 文件名   [description]
 	 */
-	outPut(outPut){
+	outPut(outPut,clean){
 		if(!fs.existsSync(outPut)){
 			//创建目录
 			filePlus.mkdirsSync(outPut,'0777');
@@ -76,6 +76,17 @@ class Svg {
 			if(fs.existsSync(path.join(outPut,this.name+'.svg'))){
 				// console.log('字体未改变');
 				return this.name
+			}else{
+
+				//字体已改变，处理方式
+				// console.log('字体改变');
+				if(clean){
+					//清除目录内文件
+					var files = filePlus.getAllFilesSync(outPut);
+					for(var i=0;i<files.length;i++){
+						fs.unlinkSync(files[i]);
+					}
+				}
 			}
 		}
 		var fontPath = path.join(outPut,this.name);
